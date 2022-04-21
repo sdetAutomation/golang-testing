@@ -1,13 +1,16 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"fmt"
+
+	"github.com/sdetAutomation/golang-testing/models"
 )
-  
- func ApiGetRequest(url string) []byte {
-  
+
+func ApiGetRequest(url string) []byte {
+
 	fmt.Println("requested url: " + url)
 
 	request, err := http.NewRequest(http.MethodGet, url, nil)
@@ -22,16 +25,36 @@ import (
 	}
 
 	defer response.Body.Close()
-	
+
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-	 fmt.Println(err)
+		fmt.Println(err)
 	}
-	
-	return body
- }
 
- func main() {
-	 apiResponse := ApiGetRequest("https://api.github.com/users/sdetAutomation")
-	 fmt.Println(string(apiResponse))
- }
+	return body
+}
+
+func GetGitHubLogin(data []byte) string {
+
+	githubPayload := models.GitHubUserInfo{}
+
+	err := json.Unmarshal(data, &githubPayload)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return githubPayload.Login
+}
+
+func main() {
+	apiResponse := ApiGetRequest("https://api.github.com/users/sdetAutomation")
+	fmt.Println(" ")
+	fmt.Println("*****************")
+	fmt.Println(string(apiResponse))
+	fmt.Println("*****************")
+	fmt.Println(" ")
+
+	login := GetGitHubLogin(apiResponse)
+	
+	fmt.Println("login : " + login)
+}
